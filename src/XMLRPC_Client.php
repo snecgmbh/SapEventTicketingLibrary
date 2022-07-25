@@ -1,6 +1,6 @@
 <?php
 
-namespace snec\SapEventTicketingLibrary\snec\SapEventTicketingLibrary;
+namespace snec\SapEventTicketingLibrary;
 
 class XMLRPC_Client
 {

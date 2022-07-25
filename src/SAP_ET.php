@@ -1,6 +1,6 @@
 <?php
 
-namespace snec\SapEventTicketingLibrary\snec\SapEventTicketingLibrary;
+namespace snec\SapEventTicketingLibrary;
 
 /**
  * Class for SAP EventTicketing XMLRPC API
