@@ -1,0 +1,28 @@
+{
+  "name": "snec/sapetlib",
+  "description": "Library for using SAP Event Ticketing APIs like XMLRPC",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "sap",
+    "eventticketing",
+    "snec",
+    "xmlrpc",
+    "api"
+  ],
+  "authors": [
+    {
+      "name": "Daniel Werner",
+      "email": "d.werner@uniorg.de"
+    }
+  ],
+  "require": {
+    "ext-curl": "*",
+    "ext-xmlrpc": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "snec\\SapEventTicketingLibrary\\": "src/"
+    }
+  }
+}
