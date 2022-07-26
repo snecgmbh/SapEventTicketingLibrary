@@ -16,6 +16,7 @@ class SAP_ET
 
     private $xmlSessionId = null;
 
+    private $etHost;
 
     /**
      * @param $etHost
@@ -23,6 +24,7 @@ class SAP_ET
      */
     public function __construct($etHost, $xmlSessionId = null)
     {
+        $this->etHost = $etHost;
         $this->xmlSessionId = $xmlSessionId;
         $this->etXmlrpcApiUrl = "https://" . $etHost . SAP_ET::$API_ENDPOINT;
         $this->xmlrpc = new XMLRPC_Client($this->etXmlrpcApiUrl);
@@ -98,4 +100,15 @@ class SAP_ET
     {
         $this->tickets_session_close();
     }
+
+    /**
+     * @return mixed
+     */
+    public function getEtHost()
+    {
+        return $this->etHost;
+    }
+
+
+
 }
