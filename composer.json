@@ -17,8 +17,7 @@
     }
   ],
   "require": {
-    "ext-curl": "*",
-    "ext-xmlrpc": "*"
+    "phpxmlrpc/phpxmlrpc": "^4.9"
   },
   "autoload": {
     "psr-4": {

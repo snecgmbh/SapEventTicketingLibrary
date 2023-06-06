@@ -2,6 +2,12 @@
 
 namespace snec\SapEventTicketingLibrary;
 
+use PhpXmlRpc\Client;
+use PhpXmlRpc\Encoder;
+use PhpXmlRpc\Helper\XMLParser;
+use PhpXmlRpc\Request;
+use PhpXmlRpc\Value;
+
 /**
  * Class for SAP EventTicketing XMLRPC API
  */
@@ -11,7 +17,7 @@ class SAP_ET
 
     private $etXmlrpcApiUrl;
 
-    /** @var XMLRPC_Client */
+    /** @var Client */
     private $xmlrpc;
 
     private $xmlSessionId = null;
@@ -27,7 +33,9 @@ class SAP_ET
         $this->etHost = $etHost;
         $this->xmlSessionId = $xmlSessionId;
         $this->etXmlrpcApiUrl = "https://" . $etHost . SAP_ET::$API_ENDPOINT;
-        $this->xmlrpc = new XMLRPC_Client($this->etXmlrpcApiUrl);
+        $this->xmlrpc = new Client($this->etXmlrpcApiUrl);
+
+        $this->xmlrpc->setOption(Client::OPT_RETURN_TYPE, XMLParser::RETURN_PHP);
     }
 
 
@@ -43,16 +51,31 @@ class SAP_ET
 
         if(isset($phpArguments[0]) && is_array($phpArguments[0]))
         {
-            $arguments = $phpArguments[0];
+            foreach ($phpArguments[0] as $key => $value) {
+                $arguments[$key] = $value;
+
+            }
         }
 
 
         if($this->xmlSessionId != null)
             $arguments["sessionid"] = $this->xmlSessionId;
 
+        $encoder = new Encoder();
+        $request = new Request($name, new Value($encoder->encode($arguments)));
 
+        $response = $this->xmlrpc->send($request);
 
-        $xmlResult = $this->xmlrpc->call($name, $arguments);
+        $xmlResult = $response->value();
+
+        if($xmlResult===0)
+        {
+            // Es gab einen HTTP Fehler, wir müssen es manuell interpretieren
+            $temp = explode("\n", $response->httpResponse()["raw_data"]);
+            $raw = array_pop($temp);
+            $xmlResult = $encoder->decode($encoder->decodeXml($raw)->value());
+        }
+
 
         if($xmlResult["errorcode"]!="0")
         {
