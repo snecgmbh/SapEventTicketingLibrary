@@ -2,11 +2,9 @@
 
 namespace snec\SapEventTicketingLibrary;
 
-use PhpXmlRpc\Client;
-use PhpXmlRpc\Encoder;
-use PhpXmlRpc\Helper\XMLParser;
-use PhpXmlRpc\Request;
-use PhpXmlRpc\Value;
+use Milo\XmlRpc\Converter;
+use Milo\XmlRpc\MethodCall;
+use Milo\XmlRpc\MethodResponse;
 
 /**
  * Class for SAP EventTicketing XMLRPC API
@@ -17,8 +15,6 @@ class SAP_ET
 
     private $etXmlrpcApiUrl;
 
-    /** @var Client */
-    private $xmlrpc;
 
     private $xmlSessionId = null;
 
@@ -33,9 +29,6 @@ class SAP_ET
         $this->etHost = $etHost;
         $this->xmlSessionId = $xmlSessionId;
         $this->etXmlrpcApiUrl = "https://" . $etHost . SAP_ET::$API_ENDPOINT;
-        $this->xmlrpc = new Client($this->etXmlrpcApiUrl);
-
-        $this->xmlrpc->setOption(Client::OPT_RETURN_TYPE, XMLParser::RETURN_PHP);
     }
 
 
@@ -53,7 +46,6 @@ class SAP_ET
         {
             foreach ($phpArguments[0] as $key => $value) {
                 $arguments[$key] = $value;
-
             }
         }
 
@@ -61,21 +53,32 @@ class SAP_ET
         if($this->xmlSessionId != null)
             $arguments["sessionid"] = $this->xmlSessionId;
 
-        $encoder = new Encoder();
-        $request = new Request($name, new Value($encoder->encode($arguments)));
+        $converter = new Converter();
 
-        $response = $this->xmlrpc->send($request);
+        $call = new MethodCall($name, [$arguments]);
 
-        $xmlResult = $response->value();
 
-        if($xmlResult===0)
-        {
-            // Es gab einen HTTP Fehler, wir müssen es manuell interpretieren
-            $temp = explode("\n", $response->httpResponse()["raw_data"]);
-            $raw = array_pop($temp);
-            $xmlResult = $encoder->decode($encoder->decodeXml($raw)->value());
+        $ch = curl_init($this->etXmlrpcApiUrl);
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $converter->toXml($call));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $xml = curl_exec($ch);
+
+        curl_close($ch);
+
+
+
+        $response = $converter->fromXml($xml);
+        if (!$response instanceof MethodResponse) {
+            throw new SapEtException('XMLRPCERR', 'Internal technical XMLRPC Error', []);
         }
 
+
+
+        $xmlResult = $response->getReturnValue();
 
         if($xmlResult["errorcode"]!="0")
         {
