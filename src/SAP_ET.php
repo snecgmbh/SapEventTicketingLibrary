@@ -50,7 +50,7 @@ class SAP_ET
         }
 
 
-        if($this->xmlSessionId != null)
+        if($this->xmlSessionId != null && !isset($arguments["sessionid"]))
             $arguments["sessionid"] = $this->xmlSessionId;
 
         $converter = new Converter();
@@ -73,7 +73,7 @@ class SAP_ET
 
         $response = $converter->fromXml($xml);
         if (!$response instanceof MethodResponse) {
-            throw new SapEtException('XMLRPCERR', 'Internal technical XMLRPC Error', []);
+            throw new SapEtException(-1, 'Internal technical XMLRPC Error', []);
         }
 
 
