@@ -28,7 +28,7 @@ class SAP_ET
     {
         $this->etHost = $etHost;
         $this->xmlSessionId = $xmlSessionId;
-        $this->etXmlrpcApiUrl = str_starts_with("http", strtolower($etHost)) ? ""  : "https://" . $etHost . SAP_ET::$API_ENDPOINT;
+        $this->etXmlrpcApiUrl = (str_starts_with(strtolower($etHost), "http") ? ""  : "https://") . $etHost . SAP_ET::$API_ENDPOINT;
     }
 
 
