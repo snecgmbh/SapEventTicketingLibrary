@@ -21,6 +21,13 @@ class SAP_ET
     private $etHost;
 
     /**
+     * Should a Exception be thrown if an error occurs?
+     *
+     * @var bool
+     */
+    private $throwExceptionOnFailure = true;
+
+    /**
      * @param $etHost
      * @param $xmlSessionId
      */
@@ -92,7 +99,7 @@ class SAP_ET
 
         $xmlResult = $response->getReturnValue();
 
-        if($xmlResult["errorcode"]!="0")
+        if($this->throwExceptionOnFailure && $xmlResult["errorcode"]!="0")
         {
             throw new SapEtException($xmlResult["errorcode"], $xmlResult["errormessage"], $xmlResult["errorfields"]);
         }
@@ -146,6 +153,24 @@ class SAP_ET
     {
         return $this->etHost;
     }
+
+    /**
+     * @return bool
+     */
+    public function isThrowExceptionOnFailure(): bool
+    {
+        return $this->throwExceptionOnFailure;
+    }
+
+    /**
+     * @param bool $throwExceptionOnFailure
+     */
+    public function setThrowExceptionOnFailure(bool $throwExceptionOnFailure): void
+    {
+        $this->throwExceptionOnFailure = $throwExceptionOnFailure;
+    }
+
+
 
 
 
