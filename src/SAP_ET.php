@@ -20,6 +20,8 @@ class SAP_ET
 
     private $etHost;
 
+    private $curlTimeout = 10;
+
     /**
      * Should a Exception be thrown if an error occurs?
      *
@@ -37,6 +39,18 @@ class SAP_ET
         $this->xmlSessionId = $xmlSessionId;
         $this->etXmlrpcApiUrl = (str_starts_with(strtolower($etHost), "http") ? ""  : "https://") . $etHost . SAP_ET::$API_ENDPOINT;
     }
+
+    public function getCurlTimeout(): int
+    {
+        return $this->curlTimeout;
+    }
+
+    public function setCurlTimeout(int $curlTimeout): void
+    {
+        $this->curlTimeout = $curlTimeout;
+    }
+
+
 
 
     /**
@@ -71,6 +85,7 @@ class SAP_ET
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: text/xml'));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $converter->toXml($call));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->curlTimeout);
 
         // Sadly some certificates are not recognized by windows...
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
